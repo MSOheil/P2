@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="~/css/admin.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+</head>
+<body>
+    <header>
+        <a href="/">Admin</a>
+    </header>
+    <div class="row">
+        <div class="col-md-2">
+            <nav>
+                <ul>
+                    <li>
+                        <a class="nav-item">
+                            Home
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="col-md-10">
+            @RenderBody()
+        </div>
+    </div>
+</body>
+@await RenderSectionAsync("Scripts", required: false)
+</html>
