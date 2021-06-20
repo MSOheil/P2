@@ -10,8 +10,20 @@
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <form asp-action="Login">
+        <form asp-action="Login" asp-route-Returnurl="@ViewData["returnurl"]">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @if (ViewData["ErrorMassage"] != null)
+            {
+                <div class="text-danger">
+                    @ViewData["Message"]
+                </div>
+            }
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="control-label"/>
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" />

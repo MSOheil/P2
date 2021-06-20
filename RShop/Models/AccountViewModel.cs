@@ -34,6 +34,9 @@ namespace RShop.Models
     }
     public class LoginViewModel
     {
+        [Required]
+        [Display(Name = "نام کاربری ")]
+        public string UserName { get; set; }
         [Required()]
         [Display(Name = "ایمیل")]
         [EmailAddress]

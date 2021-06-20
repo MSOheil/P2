@@ -17,15 +17,20 @@ namespace RShop.Controllers
     {
         private IUserRepository _userRepository;
         private UserManager<IdentityUser> _userManager;
-        public AccountController(IUserRepository userRepository, UserManager<IdentityUser> userManger)
+        private SignInManager<IdentityUser> _signinmanager;
+        public AccountController(IUserRepository userRepository, UserManager<IdentityUser> userManger,
+            SignInManager<IdentityUser> signInManager)
         {
             _userManager = userManger;
             _userRepository = userRepository;
+            _signinmanager = signInManager;
         }
         #region Register
         [HttpGet]
         public IActionResult Register()
         {
+            if (_signinmanager.IsSignedIn(User))
+                return RedirectToAction("Index", "Home");
             return View();
         }
         [HttpPost]
@@ -43,7 +48,7 @@ namespace RShop.Controllers
                 var result = await _userManager.CreateAsync(users, register.Password);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index","Home");
+                    return RedirectToAction("Index", "Home");
 
                 }
                 foreach (var item in result.Errors)
@@ -65,49 +70,51 @@ namespace RShop.Controllers
         #endregion
 
         #region Login
-        public IActionResult Login()
+        public IActionResult Login(string Returnurl)
         {
+            if (_signinmanager.IsSignedIn(User))
+                return RedirectToAction("Index", "Home");
+            ViewData["returnurl"] = Returnurl;
             return View();
         }
 
         [HttpPost]
-        public IActionResult Login(LoginViewModel login)
+        public async Task<IActionResult> Login(LoginViewModel login, string Returnurl)
         {
-            if (!ModelState.IsValid)
+            if(_signinmanager.IsSignedIn(User))
+                return RedirectToAction("Index", "Home");
+
+
+
+            if (ModelState.IsValid)
             {
-                return View(login);
+                var result = await _signinmanager.PasswordSignInAsync(login.UserName, login.Password, login.RememberMe, true);
+                if (result.Succeeded)
+                {
+                    if (string.IsNullOrEmpty(Returnurl) && Url.IsLocalUrl(Returnurl))
+                        return Redirect(Returnurl);
+                    return RedirectToAction("Index", "Home");
+                }
+                if (result.IsLockedOut)
+                {
+                    ViewData["Message"] = "به دلیل ورود های ناموفق حساب شما به مدت 5 دقیقه قفل شده است";
+                    return View(login);
+                }
+                ModelState.AddModelError("", "نام کاربری یا رمز عبور اشتباه وارد شده است");
             }
-            var _user = _userRepository.GetUserForLogin(login.Email.ToLower(), login.Password);
-            if (_user == null)
-            {
-                ModelState.AddModelError("Email", "اطلاعات صحیح نیست");
-                return View(login);
-            }
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, _user.UserID.ToString()),
-                new Claim(ClaimTypes.Name, _user.Email),
-                new Claim("IsAdmin", _user.IsAdmin.ToString()),
-            };
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
 
-            var properties = new AuthenticationProperties()
-            {
-                IsPersistent = login.RememberMe
-            };
 
-            HttpContext.SignInAsync(principal, properties);
-
-            return Redirect("/");
+            return View(login);
         }
-
-        #endregion Login
-        public IActionResult LogOut()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LogOut()
         {
-            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+           await _signinmanager.SignOutAsync();
             return RedirectToAction("Login");
         }
     }
+    #endregion Login
+
 }

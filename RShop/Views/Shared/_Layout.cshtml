@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿
+@inject SignInManager<IdentityUser> Signinmanager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -25,9 +28,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Contactus">تماس با ما</a>
                             <partial name="_Group" />
-                            @if (User.Identity.IsAuthenticated)
+                            @if (Signinmanager.IsSignedIn(User))
                             {
-                                <a class="nav-link text-dark">خوش امدید @User.Identity.Name  </a>
+                                <a class="nav-link text-dark">خوش امدید  </a>
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="LogOut">خروج</a>
 
 
