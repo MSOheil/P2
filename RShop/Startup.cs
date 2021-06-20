@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +50,14 @@ namespace RShop
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
             });
             #endregion
+            #region Identity
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<RShopContext_DB>()
+                .AddDefaultTokenProviders();
+            #endregion
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

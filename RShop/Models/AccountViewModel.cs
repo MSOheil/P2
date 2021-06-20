@@ -9,6 +9,10 @@ namespace RShop.Models
 {
     public class RegisterViewModel
     {
+
+        [Required]
+        [Display(Name ="نام کاربری ")]
+        public string UserName { get; set; }
         [Required()]
         [Display(Name ="ایمیل")]
         [EmailAddress]
@@ -20,7 +24,6 @@ namespace RShop.Models
         [DataType(DataType.Password)]
         [Display(Name ="رمز عبور")]
         [MaxLength(50)]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$", ErrorMessage = "کلمه عبور باید شامل حرف و عدد باشد")]
         public string Password { get; set; }
         [Required]
         [DataType(DataType.Password)]

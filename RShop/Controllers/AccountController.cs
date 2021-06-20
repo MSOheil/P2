@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RShop.Data.Repositories;
 using RShop.Models;
@@ -15,38 +16,42 @@ namespace RShop.Controllers
     public class AccountController : Controller
     {
         private IUserRepository _userRepository;
-        public AccountController(IUserRepository userRepository)
+        private UserManager<IdentityUser> _userManager;
+        public AccountController(IUserRepository userRepository, UserManager<IdentityUser> userManger)
         {
+            _userManager = userManger;
             _userRepository = userRepository;
         }
         #region Register
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
         [HttpPost]
-        public IActionResult Register(RegisterViewModel register)
+        public async Task<IActionResult> Register(RegisterViewModel register)
         {
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
+                var users = new IdentityUser()
+                {
+                    UserName = register.UserName,
+                    Email = register.Email,
+                    EmailConfirmed = true
+                };
+                var result = await _userManager.CreateAsync(users, register.Password);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index","Home");
 
-                return View(register);
+                }
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }
             }
-            //if (_userRepository.IsExixtByEmail(register.Email.ToLower()))
-            //{
-            //    ModelState.AddModelError("Email", "ایمیل وارد شده قبلا ثبت نام کرده است");
-            //    return View(register);
-            //}
-            Users user = new Users()
-            {
-                Email = register.Email.ToLower(),
-                Password = register.Password,
-                IsAdmin = false,
-                RegisterDate = DateTime.Now
-            };
-            _userRepository.AddUser(user);
-            return View("/Views/Account/SuccesssRegister.cshtml", register);
+            return View(register);
         }
 
         public IActionResult VeryfyEmail(string email)

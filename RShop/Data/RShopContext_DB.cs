@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RShop.Models;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RShop.Data
 {
-    public class RShopContext_DB : DbContext
+    public class RShopContext_DB : IdentityDbContext
     {
         public RShopContext_DB(DbContextOptions<RShopContext_DB> options) : base(options)
         {
