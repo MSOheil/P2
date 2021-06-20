@@ -12,6 +12,7 @@ namespace RShop.Models
 
         [Required]
         [Display(Name ="نام کاربری ")]
+        [Remote("IsUserExist","Account")]
         public string UserName { get; set; }
         [Required()]
         [Display(Name ="ایمیل")]

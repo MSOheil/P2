@@ -51,7 +51,15 @@ namespace RShop
             });
             #endregion
             #region Identity
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<IdentityUser, IdentityRole>(options=>
+            {
+                options.Password.RequiredUniqueChars = 0;
+                options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-";
+            }
+            
+            )
                 .AddEntityFrameworkStores<RShopContext_DB>()
                 .AddDefaultTokenProviders();
             #endregion

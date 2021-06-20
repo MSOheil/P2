@@ -59,13 +59,17 @@ namespace RShop.Controllers
             return View(register);
         }
 
-        public IActionResult VeryfyEmail(string email)
+        public async Task<IActionResult> VeryfyEmail(string email)
         {
-            if (_userRepository.IsExixtByEmail(email.ToLower()))
-            {
-                return Json($"ایمیل {email}تکراری است");
-            };
-            return Json(true);
+            var ExistEmail = await _userManager.FindByEmailAsync(email);
+            if (ExistEmail == null) return Json(true);
+            return Json("ایمیل وارد شده قبلا ثبت نام کرده است");
+        }
+        public async Task<IActionResult> IsUserExist(string Username)
+        {
+            var IsUserExist = await _userManager.FindByNameAsync(Username);
+            if (IsUserExist == null) return Json(true);
+            return Json("نام کاربری  وارد شده قبلا ثبت نام کرده است");
         }
         #endregion
 
