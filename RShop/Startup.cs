@@ -49,19 +49,29 @@ namespace RShop
                 options.LogoutPath = "/Account/LogOut";
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
             });
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = "1007191484039-q3s9hmpcuosfbs4scp7p4s61s821m47u.apps.googleusercontent.com";
+                    options.ClientSecret = "V0isEBIhk5OvgbvlFjcg58py";
+                });
             #endregion
             #region Identity
-            services.AddIdentity<IdentityUser, IdentityRole>(options=>
+            services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
                 options.Password.RequiredUniqueChars = 0;
                 options.User.RequireUniqueEmail = true;
                 options.User.AllowedUserNameCharacters =
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-";
             }
-            
+
             )
                 .AddEntityFrameworkStores<RShopContext_DB>()
                 .AddDefaultTokenProviders();
+            #endregion
+
+            #region emailsender
+            services.AddScoped<IMessageSender, MessageSender>();
             #endregion
 
 
@@ -90,11 +100,11 @@ namespace RShop
             {
                 if (context.Request.Path.StartsWithSegments("/Admin"))
                 {
-                    if (!context.User.Identity.IsAuthenticated) 
+                    if (!context.User.Identity.IsAuthenticated)
                     {
-                    context.Response.Redirect("/Account/Login");
+                        context.Response.Redirect("/Account/Login");
                     }
-                    else if(!bool.Parse(context.User.FindFirstValue("IsAdmin")))
+                    else if (!bool.Parse(context.User.FindFirstValue("IsAdmin")))
                     {
                         context.Response.Redirect("/Account/Login");
 

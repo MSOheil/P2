@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,13 +13,13 @@ namespace RShop.Models
 
         [Required]
         [Display(Name ="نام کاربری ")]
-        [Remote("IsUserExist","Account")]
+        [Remote("IsUserExist","Account", HttpMethod = "POST", AdditionalFields = "__RequestVerificationToken")]
         public string UserName { get; set; }
         [Required()]
         [Display(Name ="ایمیل")]
         [EmailAddress]
         [MaxLength(300)]
-        [Remote("VeryfyEmail", "Account")]
+        [Remote("VeryfyEmail", "Account",HttpMethod ="POST",AdditionalFields = "__RequestVerificationToken")]
 
         public string Email { get; set; }
         [Required]
@@ -35,6 +36,8 @@ namespace RShop.Models
     }
     public class LoginViewModel
     {
+
+
         [Required]
         [Display(Name = "نام کاربری ")]
         public string UserName { get; set; }
@@ -50,5 +53,10 @@ namespace RShop.Models
         public string Password { get; set; }
         [Display(Name ="مزابه خاطر بسپار")]
         public bool RememberMe { get; set; }
+
+        public string ReurnUrl { get; set; }
+        public List<AuthenticationScheme> ExternalLogin { get; set; }
+
+
     }
 }

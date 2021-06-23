@@ -43,6 +43,32 @@
                 <input type="submit" value="Create" class="btn btn-success" />
             </div>
         </form>
+        @{ 
+            if(Model.ExternalLogin.Count== 0)
+            {
+                <div>درحال حاضر امکان ورود به سایت نمیباشد</div>
+            }
+
+            <form method="post" asp-controller="Account" asp-action="ExternalLogin" asp-route-returnUrl="@Model.ReurnUrl">
+                <div class="social">
+                    @foreach (var Provider in Model.ExternalLogin)
+                    {
+                        <button type="submit" value="@Provider.Name" class="btn btn-primary" name="provider" title="ورود با استفاده از اکانت @Provider.DisplayName">
+                            @Provider.DisplayName
+
+
+                        </button>
+
+
+
+                    }
+                </div>
+
+            </form>
+            
+
+
+        }
     </div>
 </div>
 
