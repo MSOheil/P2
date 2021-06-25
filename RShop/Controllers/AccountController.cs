@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RShop.Data.Repositories;
@@ -13,19 +14,22 @@ using System.Threading.Tasks;
 
 namespace RShop.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private IUserRepository _userRepository;
         private UserManager<IdentityUser> _userManager;
         private SignInManager<IdentityUser> _signinmanager;
         private IMessageSender _messageSender;
+        private RoleManager<IdentityUser> _roleManager;
         public AccountController(IUserRepository userRepository, UserManager<IdentityUser> userManger,
-            SignInManager<IdentityUser> signInManager,IMessageSender messageSender)
+            SignInManager<IdentityUser> signInManager,IMessageSender messageSender,RoleManager<IdentityUser> roleManager)
         {
             _userManager = userManger;
             _userRepository = userRepository;
             _signinmanager = signInManager;
             _messageSender = messageSender;
+            _roleManager = roleManager;
         }
         #region Register
         [HttpGet]
@@ -211,6 +215,7 @@ namespace RShop.Controllers
             return View();
         }
         #endregion Login
+        #region confirm Email
         public async Task<IActionResult> ConfirmEmail(string userName,string token)
         {
             if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(token))
@@ -221,6 +226,9 @@ namespace RShop.Controllers
 
             return Content(result.Succeeded ? "Email Confirm" : "Email not confirm");
         }
+        #endregion
+
+
 
     }
 
