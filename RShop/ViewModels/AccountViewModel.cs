@@ -33,6 +33,9 @@ namespace RShop.Models
         [MaxLength(50)]
         [Compare("Password")]
         public string RePassword { get; set; }
+        [Required(ErrorMessage ="شماره تلفن خود را وارد کنین")]
+        [Display(Name ="لطفا  شماره تلفن خود را وارد کنین")]
+        public string PhoneNumber { get; set; }
     }
     public class LoginViewModel
     {

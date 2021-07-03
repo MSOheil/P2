@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using RShop.Authentication;
 using RShop.Data.Repositories;
 using RShop.Models;
+using RShop.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,25 +16,24 @@ using System.Threading.Tasks;
 
 namespace RShop.Controllers
 {
-    [Authorize]
     public class AccountController : Controller
     {
         private IUserRepository _userRepository;
         private UserManager<IdentityUser> _userManager;
         private SignInManager<IdentityUser> _signinmanager;
         private IMessageSender _messageSender;
-        private RoleManager<IdentityUser> _roleManager;
+        string code = CodeGenerator.ActiveCode();
+
         public AccountController(IUserRepository userRepository, UserManager<IdentityUser> userManger,
-            SignInManager<IdentityUser> signInManager,IMessageSender messageSender,RoleManager<IdentityUser> roleManager)
+            SignInManager<IdentityUser> signInManager,IMessageSender messageSender)
         {
             _userManager = userManger;
             _userRepository = userRepository;
             _signinmanager = signInManager;
             _messageSender = messageSender;
-            _roleManager = roleManager;
         }
         #region Register
-        [HttpGet]
+        [Route("/Register")]
         public IActionResult Register()
         {
             if (_signinmanager.IsSignedIn(User))
@@ -42,28 +43,21 @@ namespace RShop.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel register)
         {
-
             if (ModelState.IsValid)
             {
                 var users = new IdentityUser()
                 {
                     UserName = register.UserName,
                     Email = register.Email,
-                    EmailConfirmed = true
+                    PhoneNumber=register.PhoneNumber
                 };
                 var result = await _userManager.CreateAsync(users, register.Password);
                 if (result.Succeeded)
                 {
-                    var emailConfimationToken =
-                        await _userManager.GenerateEmailConfirmationTokenAsync(users);
-                    var emailmessage =
-                        Url.Action("ConfirmMessage", "Account",
-                        new { userName = users.UserName, token = emailConfimationToken },
-                        Request.Scheme
-                        );
-                    await _messageSender.SendEmailAsync(register.Email, "Email Confirmation", emailmessage);
-                    return RedirectToAction("Index", "Home");
+                    SMS sms = new SMS();
+                    sms.Send(users.PhoneNumber, "ثبت نام شما در فروشگاه RSHOP انجام شد کد فعال سازی " + code);
 
+                    return RedirectToAction("ConfirmCode", "Account");
                 }
                 foreach (var item in result.Errors)
                 {
@@ -73,7 +67,6 @@ namespace RShop.Controllers
             return View(register);
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> VeryfyEmail(string email)
         {
             var ExistEmail = await _userManager.FindByEmailAsync(email);
@@ -81,7 +74,6 @@ namespace RShop.Controllers
             return Json("ایمیل وارد شده قبلا ثبت نام کرده است");
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> IsUserExist(string Username)
         {
             var IsUserExist = await _userManager.FindByNameAsync(Username);
@@ -91,7 +83,7 @@ namespace RShop.Controllers
         #endregion
 
         #region Login
-        [HttpGet]
+        [Route("/Login")]
         public async Task<IActionResult> Login(string Returnurl = null)
         {
             if (_signinmanager.IsSignedIn(User))
@@ -137,8 +129,6 @@ namespace RShop.Controllers
 
             return View(login);
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOut()
         {
            await _signinmanager.SignOutAsync();
@@ -149,7 +139,7 @@ namespace RShop.Controllers
         {
             var redirectUrl = Url.Action("ExternalLoginBack", "Account",
                 new {ReturnUrl=returnUrl });
-            var properties = _signinmanager.ConfigureExternalAuthenticationProperties(Provider, returnUrl);
+            var properties = _signinmanager.ConfigureExternalAuthenticationProperties(Provider, redirectUrl);
             return new ChallengeResult(Provider, properties);
 
 
@@ -227,7 +217,22 @@ namespace RShop.Controllers
             return Content(result.Succeeded ? "Email Confirm" : "Email not confirm");
         }
         #endregion
+        #region ConfirmMobile
+        public IActionResult ConfirmCode()
+        {
+            return View("/Views/Account/ActevieCode.cshtml");
+        }
+        [HttpPost]
+        public IActionResult ConfirmCode(ActiveCodeViewModel Active)
+        {
+            if (Active.Code == code)
+            {
+                return RedirectToAction("Login");
+            }
+            return View(Active);
+        }
 
+        #endregion
 
 
     }

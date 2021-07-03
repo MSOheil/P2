@@ -28,6 +28,7 @@ namespace RShop
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddControllersWithViews();
             services.AddRazorPages();
             #region DB
@@ -35,6 +36,7 @@ namespace RShop
             options.UseSqlServer("Data Source=DESKTOP-H3CG3IM\\SQL2019;Initial Catalog=RShop_DB;integrated Security=true;")
 
             );
+            
             #endregion
 
             #region AddRepository
@@ -96,23 +98,23 @@ namespace RShop
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.Path.StartsWithSegments("/Admin"))
-                {
-                    if (!context.User.Identity.IsAuthenticated)
-                    {
-                        context.Response.Redirect("/Account/Login");
-                    }
-                    else if (!bool.Parse(context.User.FindFirstValue("IsAdmin")))
-                    {
-                        context.Response.Redirect("/Account/Login");
+            //app.Use(async (context, next) =>
+            //{
+            //    if (context.Request.Path.StartsWithSegments("/Admin"))
+            //    {
+            //        if (!context.User.Identity.IsAuthenticated)
+            //        {
+            //            context.Response.Redirect("/Account/Login");
+            //        }
+            //        else if (!bool.Parse(context.User.FindFirstValue("IsAdmin")))
+            //        {
+            //            context.Response.Redirect("/Account/Login");
 
-                    }
+            //        }
 
-                }
-                await next.Invoke();
-            });
+            //    }
+            //    await next.Invoke();
+            //});
 
             app.UseEndpoints(endpoints =>
             {

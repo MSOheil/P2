@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <form asp-action="Login" asp-route-Returnurl="@ViewData["returnurl"]">
+        <form asp-action="Login" asp-route-Returnurl="@ViewData["returnurl"]" >
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             @if (ViewData["ErrorMassage"] != null)
             {
@@ -40,7 +40,7 @@
                 </label>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-success" />
+                <input type="submit" value="ورود" class="btn btn-success" />
             </div>
         </form>
         @{ 
